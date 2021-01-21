@@ -1,0 +1,71 @@
+#!/usr/bin/osascript
+
+on run argv
+    if count of argv is 0 then
+        log "Usage: id cmd"
+    else
+        set arg_index to 1
+        repeat with arg in argv
+            if arg starts with "status" then
+                set meets to find_meets()
+                log "found " & (count meets) & " meets"
+                repeat with meet in meets
+                    log (get |name| of meet)
+                    log link of meet
+                    log "mic muted: " & mic_off of meet & " video muted: " & video_off of meet
+                end repeat
+                return
+            end if
+            if arg starts with "goto" then
+                set |id| to (item (arg_index + 1) of argv)
+                cmd_meets({meet: |id|, set_active: true} as record)
+                return
+            end if
+            set arg_index to arg_index + 1
+        end repeat
+    end if
+    return
+end run
+
+on find_meets()
+    set meets to {}
+    tell application "Google Chrome"
+        repeat with w in (windows)
+            repeat with t in (tabs of w)
+                if URL of t starts with "https://meet.google.com" then
+                    set meet to {|name|: {}, link: {}, mic_off: {}, video_off: {}} as record
+                    set link of meet to (get URL of t)
+                    set |name| of meet to (get name of t)
+                    tell t
+                        set mic_off of meet to execute javascript "document.querySelectorAll(\"[data-capture-type=sI3MNd]\")[0].querySelectorAll(\"[data-is-muted]\")[0].getAttribute(\"data-is-muted\");"
+                        set video_off of meet to execute javascript "document.querySelectorAll(\"[data-capture-type=stqyie]\")[0].querySelectorAll(\"[data-is-muted]\")[0].getAttribute(\"data-is-muted\");"
+                    end tell
+                    put meet to end of meets
+                end if
+            end repeat
+        end repeat
+    end tell
+    return meets
+end find_meets
+
+on cmd_meets(cmd)
+    tell application "Google Chrome"
+        if set_active of cmd is true then
+            activate
+        end if
+        set window_index to 0
+        repeat with w in (windows)
+            set tab_index to 1
+            repeat with t in (tabs of w)
+                if URL of t starts with "https://meet.google.com" and (meet of cmd is null or URL of t contains meet of cmd) then
+                    if set_active of cmd is true then
+                        set (active tab index of w) to (tab_index)
+                        set index of w to 1
+                    end
+                end if
+                set tab_index to tab_index + 1
+            end repeat
+            set window_index to window_index + 1
+        end repeat
+    end tell
+end cmd_meets
