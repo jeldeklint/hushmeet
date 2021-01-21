@@ -24,11 +24,9 @@ cmds apart from status can be combined. eg. \"goto mm\" navigates and mutes the 
         repeat with arg in argv
             if contents of arg is "status" then
                 set meets to find_meets()
-                log "found " & (count meets) & " meets"
+                log "NAME\t\t\tMIC MUTED\t\tCAMERA MUTED\tURL"
                 repeat with meet in meets
-                    log (get |name| of meet)
-                    log link of meet
-                    log "mic muted: " & mic_off of meet & " camera muted: " & video_off of meet
+                    log (get |name| of meet) & "\t" & mic_off of meet & "\t\t\t" & video_off of meet & "\t\t" & link of meet
                 end repeat
                 return
             end if
