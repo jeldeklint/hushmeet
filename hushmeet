@@ -1,17 +1,21 @@
 #!/usr/bin/osascript
+global mic_element
+global camera_element
 
 on run argv
+    set mic_element to "document.querySelectorAll(\"[data-capture-type=sI3MNd]\")[0].querySelectorAll(\"[data-is-muted]\")[0]"
+    set camera_element to "document.querySelectorAll(\"[data-capture-type=stqyie]\")[0].querySelectorAll(\"[data-is-muted]\")[0]"
     if count of argv is 0 then
         log "Usage: cmds... [id]"
         log "cmds:
     status - finds and logs meets
     goto - navigates to meet [id] or first if not specified. breaks mute of \"all\".
     mm - mutes mic for meet [id] or all if not specified
-    mv - mutes video for meet [id] or all if not specified
+    mc - mutes camera for meet [id] or all if not specified
     toggle - toggles audio for meet [id] or all if not specified\n
 cmds apart from status can be combined. eg. \"goto mm\" navigates and mutes the first meet found"
     else
-        set cmds to {"status", "goto", "mm", "mv", "toggle"}
+        set cmds to {"status", "goto", "mm", "mc", "toggle"}
         set cmd to {meet: null, set_active: false, mute_mic: false, mute_video: false, toggle_mic: false} as record
         set |id| to last item of argv
         if |id| is not in cmds then
@@ -24,13 +28,13 @@ cmds apart from status can be combined. eg. \"goto mm\" navigates and mutes the 
                 repeat with meet in meets
                     log (get |name| of meet)
                     log link of meet
-                    log "mic muted: " & mic_off of meet & " video muted: " & video_off of meet
+                    log "mic muted: " & mic_off of meet & " camera muted: " & video_off of meet
                 end repeat
                 return
             end if
             if contents of arg is "goto" then set set_active of cmd to true
             if contents of arg is "mm" then set mute_mic of cmd to true
-            if contents of arg is "mv" then set mute_video of cmd to true
+            if contents of arg is "mc" then set mute_video of cmd to true
             if contents of arg is "toggle" then set toggle_mic of cmd to true
         end repeat
 
@@ -42,19 +46,17 @@ end run
 on find_meets()
     set meets to {}
     tell application "Google Chrome"
-        repeat with w in (windows)
-            repeat with t in (tabs of w)
-                if URL of t starts with "https://meet.google.com" then
-                    set meet to {|name|: {}, link: {}, mic_off: {}, video_off: {}} as record
-                    set link of meet to (get URL of t)
-                    set |name| of meet to (get name of t)
-                    tell t
-                        set mic_off of meet to (execute javascript "document.querySelectorAll(\"[data-capture-type=sI3MNd]\")[0].querySelectorAll(\"[data-is-muted]\")[0].getAttribute(\"data-is-muted\");") as boolean
-                        set video_off of meet to (execute javascript "document.querySelectorAll(\"[data-capture-type=stqyie]\")[0].querySelectorAll(\"[data-is-muted]\")[0].getAttribute(\"data-is-muted\");") as boolean
-                    end tell
-                    put meet to end of meets
-                end if
-            end repeat
+        repeat with t in (every tabs of windows)
+            if URL of t starts with "https://meet.google.com" then
+                set meet to {|name|: {}, link: {}, mic_off: {}, video_off: {}} as record
+                set link of meet to (get URL of t)
+                set |name| of meet to (get name of t)
+                tell t
+                    set mic_off of meet to (execute javascript mic_element & ".getAttribute(\"data-is-muted\");") as boolean
+                    set video_off of meet to (execute javascript camera_element & ".getAttribute(\"data-is-muted\");") as boolean
+                end tell
+                put meet to end of meets
+            end if
         end repeat
     end tell
     return meets
@@ -69,23 +71,23 @@ on cmd_meets(cmd)
                 if URL of t starts with "https://meet.google.com" and (meet of cmd is null or URL of t contains meet of cmd) then
                     if toggle_mic of cmd then
                         log "toggles mic in \"" & (get name of t) & "\""
-                        tell t to execute javascript "document.querySelectorAll(\"[data-capture-type=sI3MNd]\")[0].querySelectorAll(\"[data-is-muted]\")[0].click();"
+                        tell t to execute javascript mic_element & ".click();"
                     end if
                     if mute_mic of cmd then
                         log "mutes mic in \"" & (get name of t) & "\""
                         tell t
-                            set mic_off to (execute javascript "document.querySelectorAll(\"[data-capture-type=sI3MNd]\")[0].querySelectorAll(\"[data-is-muted]\")[0].getAttribute(\"data-is-muted\");") as boolean
+                            set mic_off to (execute javascript mic_element & ".getAttribute(\"data-is-muted\");") as boolean
                             if not mic_off then
-                                execute javascript "document.querySelectorAll(\"[data-capture-type=sI3MNd]\")[0].querySelectorAll(\"[data-is-muted]\")[0].click();"
+                                execute javascript mic_element & ".click();"
                             end if
                         end tell
                     end if
                     if mute_video of cmd then
-                        log "mutes video in \"" & (get name of t) & "\""
+                        log "mutes camera in \"" & (get name of t) & "\""
                         tell t
-                            set video_off to (execute javascript "document.querySelectorAll(\"[data-capture-type=stqyie]\")[0].querySelectorAll(\"[data-is-muted]\")[0].getAttribute(\"data-is-muted\");") as boolean
+                            set video_off to (execute javascript camera_element & ".getAttribute(\"data-is-muted\");") as boolean
                             if not video_off then
-                                execute javascript "document.querySelectorAll(\"[data-capture-type=stqyie]\")[0].querySelectorAll(\"[data-is-muted]\")[0].click();"
+                                execute javascript camera_element & ".click();"
                             end if
                         end tell
                     end if
