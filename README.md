@@ -25,9 +25,9 @@ cmds apart from status can be combined. eg. "goto mm" navigates and mutes the fi
 show some status about meets found among chrome windows and tabs.
 ```
 ./hushmeet status
-NAME			          MIC MUTED		CAMERA MUTED	URL
-Meet – Stand up	    false			  false		      https://meet.google.com/abc-asdf-ghj?authuser=1
-Meet – xyz-asdf-pjh	false			  false		      https://meet.google.com/xyz-asdf-pjh?authuser=1
+NAME                    MIC MUTED       CAMERA MUTED	URL
+Meet – Stand up         false           false	        https://meet.google.com/abc-asdf-ghj?authuser=1
+Meet – xyz-asdf-pjh     false           false	        https://meet.google.com/xyz-asdf-pjh?authuser=1
 ```
 
 navigate to first found meet
