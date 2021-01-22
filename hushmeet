@@ -26,12 +26,16 @@ cmds apart from status can be combined. eg. \"goto mm\" navigates and mutes the 
         end if
         repeat with arg in argv
             if contents of arg is "status" then
+                set results to {}
                 set meets to find_meets()
-                log "NAME\t\t\tMIC MUTED\t\tCAMERA MUTED\tURL"
+                --log "NAME\t\t\tMIC MUTED\t\tCAMERA MUTED\tURL"
+                put "NAME\t\t\tMIC MUTED\t\tCAMERA MUTED\tURL" to end of results
                 repeat with meet in meets
-                    log (get |name| of meet) & "\t" & mic_off of meet & "\t\t\t" & video_off of meet & "\t\t" & link of meet
+                    --log (get |name| of meet) & "\t" & mic_off of meet & "\t\t\t" & video_off of meet & "\t\t" & link of meet
+                    put ((get |name| of meet) & "\t" & mic_off of meet & "\t\t\t" & video_off of meet & "\t\t" & link of meet) to end of results
                 end repeat
-                return
+                set AppleScript's text item delimiters to "\n"
+                return (results as string)
             end if
             if contents of arg is "goto" then set set_active of cmd to true
             if contents of arg is "mm" then set mute_mic of cmd to true
