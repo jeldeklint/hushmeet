@@ -64,7 +64,6 @@ end find_meets
 
 on cmd_meets(cmd)
     tell application "Google Chrome"
-        set window_index to 0
         repeat with w in (windows)
             set tab_index to 1
             repeat with t in (tabs of w)
@@ -109,7 +108,6 @@ on cmd_meets(cmd)
                 end if
                 set tab_index to tab_index + 1
             end repeat
-            set window_index to window_index + 1
         end repeat
     end tell
 end cmd_meets
