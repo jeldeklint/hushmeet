@@ -17,10 +17,10 @@ cmds:
     goto - navigates to meet [id] or first if not specified. breaks mute of "all".
     mm - mutes mic for meet [id] or all if not specified
     mc - mutes camera for meet [id] or all if not specified
-    toggle - toggles audio for meet [id] or all if not specified
-    
+    toggle - toggles audio for meet [id] or all if not specified    
     ma - mutes out audio for meet [id] or all if not specified
     uma - unmutes out audio for meet [id] or all if not specified
+
 cmds apart from status can be combined. eg. "goto mm" navigates and mutes the first meet found
 ```
 
